@@ -6,6 +6,8 @@
  */
 
 var url = require('url'),
+	gm = require('gm'),
+	imageMagick = gm.subClass({ imageMagick: true }),
 	imagemagick = require('imagemagick-native'),
 	http = require('http'),
 	fs = require('fs'),

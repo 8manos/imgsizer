@@ -25,7 +25,8 @@
     "http": "0.0.0",
     "request": "^2.34.0",
     "crypto": "0.0.3",
-    "imagemagick-native": "^0.2.9"
+    "imagemagick-native": "^0.2.9",
+    "gm": "^1.14.2"
   },
   "scripts": {
     "start": "node app.js",
