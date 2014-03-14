@@ -1,0 +1,91 @@
+/**
+ * ImgController.js 
+ *
+ * @description ::
+ * @docs        :: http://sailsjs.org/#!documentation/controllers
+ */
+
+var url = require('url'),
+	imagemagick = require('imagemagick-native'),
+	http = require('http'),
+	fs = require('fs'),
+    request = require('request'),
+    crypto = require('crypto');
+
+var download = function(uri, filename, callback){
+  request.head(uri, function(err, res, body){
+    console.log('content-type:', res.headers['content-type']);
+    console.log('content-length:', res.headers['content-length']);
+    var imagen = 'img/original/'+filename+'.png';
+
+    // Dounload
+    request(uri).pipe(fs.createWriteStream( imagen )).on('close', callback );
+
+  });
+};
+
+var resize = function( imagen, width, height, res ){
+	// Rezise
+	console.log( "Resizing... ");
+
+    srcData     = require('fs').readFileSync( 'img/original/'+imagen+'.png' );
+
+    if ( fs.existsSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png') ) {
+    	console.log( "El archivo redimensionado ya existe." );
+	    var respuesta = require('fs').readFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png' );
+	    res.end( respuesta, 'binary' );
+	}else{
+		// returns a Buffer instance
+		console.log( "Generando archivo redimensionado." );
+		var resizedBuffer = imagemagick.convert({
+		    srcData: srcData, // provide a Buffer instance
+		    width: width,
+		    height: height,
+		    resizeStyle: "aspectfit",
+		    quality: 80,
+		    format: 'PNG'
+		});
+
+		require('fs').writeFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png', resizedBuffer, 'binary');
+
+		console.log('It\'s saved!');
+		res.end( resizedBuffer ,'binary' );
+	}
+
+ 
+};
+
+module.exports = {
+	resize: function( req, res ){
+		shasum = crypto.createHash('sha1');
+
+		var img_url = url.parse( req.param('src') );
+		shasum.update( req.param('src' ) );
+
+		console.log("Resize request");
+		console.log ( req.param( 'width' ) );
+		console.log ( req.param( 'height' ) );
+		console.log ( req.param( 'src' ) );
+
+		var options = {
+		  filename: shasum.digest('hex'),
+		  host: img_url.hostname,
+		  port: 80,
+		  path: img_url.path
+		};
+
+		console.log( options );
+
+		if (fs.existsSync( 'img/original/'+options.filename+'.png' )) {
+		  console.log( "El archivo solicitado ya ha sido descargado." );
+		  resize( options.filename , req.param( 'width' ), req.param( 'height' ), res );
+		}else{
+			console.log( "Descargando archivo." );
+			download( req.param('src'), options.filename , function(){
+			  console.log('done');
+			  resize( options.filename , req.param( 'width' ), req.param( 'height' ), res );
+			});
+		}
+
+	}
+};
