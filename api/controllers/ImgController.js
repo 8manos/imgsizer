@@ -7,8 +7,6 @@
 
 var url = require('url'),
 	gm = require('gm'),
-	imageMagick = gm.subClass({ imageMagick: true }),
-	imagemagick = require('imagemagick-native'),
 	http = require('http'),
 	fs = require('fs'),
     request = require('request'),
@@ -30,7 +28,7 @@ var resize = function( imagen, width, height, res ){
 	// Rezise
 	console.log( "Resizing... ");
 
-    srcData     = require('fs').readFileSync( 'img/original/'+imagen+'.png' );
+    var srcData = require('fs').readFileSync( 'img/original/'+imagen+'.png' );
 
     if ( fs.existsSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png') ) {
     	console.log( "El archivo redimensionado ya existe." );
@@ -39,19 +37,15 @@ var resize = function( imagen, width, height, res ){
 	}else{
 		// returns a Buffer instance
 		console.log( "Generando archivo redimensionado." );
-		var resizedBuffer = imagemagick.convert({
-		    srcData: srcData, // provide a Buffer instance
-		    width: width,
-		    height: height,
-		    resizeStyle: "aspectfit",
-		    quality: 80,
-		    format: 'PNG'
+
+		var m = gm( srcData ).resize( width, height );
+		m.write( 'img/sized/'+imagen+'_'+width+'_'+height+'.png', function( err, stdout, stderr ){
+				if( err ) console.log( err );
+				console.log('It\'s saved!');
+	    		var respuesta = require('fs').readFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png' );
+	    		res.end( respuesta, 'binary' );
 		});
-
-		require('fs').writeFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png', resizedBuffer, 'binary');
-
-		console.log('It\'s saved!');
-		res.end( resizedBuffer ,'binary' );
+		
 	}
 
  
