@@ -32,8 +32,7 @@ var resize = function( imagen, width, height, res ){
 
     if ( fs.existsSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png') ) {
     	console.log( "El archivo redimensionado ya existe." );
-	    var respuesta = require('fs').readFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png' );
-	    res.end( respuesta, 'binary' );
+	    res.sendfile( './img/sized/'+imagen+'_'+width+'_'+height+'.png', { maxAge: 6000000 } );
 	}else{
 		// returns a Buffer instance
 		console.log( "Generando archivo redimensionado." );
@@ -42,8 +41,7 @@ var resize = function( imagen, width, height, res ){
 		m.write( 'img/sized/'+imagen+'_'+width+'_'+height+'.png', function( err, stdout, stderr ){
 				if( err ) console.log( err );
 				console.log('It\'s saved!');
-	    		var respuesta = require('fs').readFileSync('./img/sized/'+imagen+'_'+width+'_'+height+'.png' );
-	    		res.end( respuesta, 'binary' );
+	    		res.sendfile( './img/sized/'+imagen+'_'+width+'_'+height+'.png', { maxAge: 6000000 } );
 		});
 		
 	}
