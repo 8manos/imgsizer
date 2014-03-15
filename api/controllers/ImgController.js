@@ -37,7 +37,8 @@ var resize = function( imagen, width, height, res ){
 		// returns a Buffer instance
 		console.log( "Generando archivo redimensionado." );
 
-		var m = gm( srcData ).resize( width, height );
+		var m = gm( srcData ).resize( width, height ).quality( 0 ).compress('LZMA');
+
 		m.write( 'img/sized/'+imagen+'_'+width+'_'+height+'.png', function( err, stdout, stderr ){
 				if( err ) console.log( err );
 				console.log('It\'s saved!');

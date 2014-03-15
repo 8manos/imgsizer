@@ -27,11 +27,13 @@ module.exports.routes = {
   // 
   // (Alternatively, remove this and add an `index.html` file in your `assets` directory)
   '/': {
-    view: 'homepage'
+    view: 'homepage',
+    policy: 'SessionController'
   },
   '/:width/:height/:src': {
     controller: 'ImgController',
-    action: 'resize'
+    action: 'resize',
+    policy: 'SessionController'
   }
 
 
